@@ -29,31 +29,112 @@ Una skill es un archivo que le "enseña" a Claude cómo trabajar específicament
 ## Instalación paso a paso
 
 ### Requisitos previos
-- Tener una cuenta en [claude.ai](https://claude.ai)
-- Tener acceso a este repositorio de GitHub
 
-### Paso 1 — Descargar la skill
+- **Cuenta en Claude:** necesitás tener una cuenta activa en [claude.ai](https://claude.ai). Las skills requieren el plan **Pro** o superior (no funcionan con el plan gratuito).
+- **Acceso a este repositorio:** necesitás estar logueado en GitHub con tu cuenta del equipo Dycos para poder descargar el archivo.
+- **Navegador compatible:** Chrome, Firefox, Safari o Edge en su versión actual. No se recomienda instalar desde el navegador del celular.
 
-En este repositorio, hacé clic en el archivo `dycos-softland-support.skill` y luego en el botón **Download raw file** (ícono de descarga).
+---
 
-### Paso 2 — Abrir Claude
+### Paso 1 — Descargar el archivo de la skill
 
-Ingresá a [claude.ai](https://claude.ai) con tu cuenta.
+1. En este repositorio de GitHub, buscá el archivo `dycos-softland-support.skill` en la lista de archivos de la página principal.
+2. Hacé clic en el nombre del archivo para abrirlo.
+3. En la página del archivo, buscá el ícono de descarga en la esquina superior derecha del panel de contenido — es un botón con una flecha hacia abajo y dice **"Download raw file"** al pasar el mouse.
+4. Hacé clic en ese botón. El archivo se va a descargar como `dycos-softland-support.skill` en tu carpeta de descargas.
 
-### Paso 3 — Ir a Configuración
+> **Tip:** si el navegador intenta abrir el archivo en lugar de descargarlo, hacé clic derecho en el botón de descarga y elegí **"Guardar enlace como..."**
 
-Hacé clic en tu foto de perfil (esquina inferior izquierda) → **Configuración**.
+---
 
-### Paso 4 — Instalar la skill
+### Paso 2 — Ingresar a Claude
 
-Dentro de Configuración, buscá la sección **Skills** → hacé clic en **Instalar skill** → seleccioná el archivo `.skill` que descargaste.
+1. Abrí [claude.ai](https://claude.ai) en el navegador.
+2. Iniciá sesión con tu cuenta (la que tiene el plan Pro).
+3. Asegurate de estar en la pantalla principal de chats antes de continuar.
 
-### Paso 5 — Verificar
+---
 
-Abrí un chat nuevo en Claude y escribí algo como:
-> "Tengo el ticket #123, problema con cierre de mes"
+### Paso 3 — Abrir la Configuración
 
-Si la skill está activa, Claude va a responder siguiendo el flujo de trabajo de Dycos automáticamente.
+1. Buscá tu foto de perfil o inicial en la esquina **inferior izquierda** de la pantalla.
+2. Hacé clic sobre ella para abrir el menú de usuario.
+3. En el menú desplegable, seleccioná **"Configuración"** (o **"Settings"** si tu cuenta está en inglés).
+
+---
+
+### Paso 4 — Ir a la sección Skills
+
+1. Dentro de Configuración, vas a ver un menú lateral con varias secciones.
+2. Buscá la sección llamada **"Skills"** en ese menú lateral.
+3. Si no ves la sección Skills, revisá que tu plan sea Pro o Team — el plan gratuito no la tiene.
+
+---
+
+### Paso 5 — Instalar la skill
+
+1. Dentro de la sección Skills, hacé clic en el botón **"Instalar skill"** (o **"Install skill"**).
+2. Se va a abrir una ventana del explorador de archivos de tu computadora.
+3. Navegá hasta tu carpeta de Descargas y seleccioná el archivo `dycos-softland-support.skill`.
+4. Hacé clic en **Abrir** (o **Open**).
+5. Claude va a mostrar un resumen de lo que contiene la skill y te va a pedir confirmación.
+6. Confirmá la instalación.
+
+La skill va a aparecer listada en la sección Skills con el nombre **"Dycos Softland Support"**.
+
+---
+
+### Paso 6 — Verificar que la instalación funcionó
+
+1. Cerrá la Configuración y abrí un **chat nuevo** (hacé clic en "Nuevo chat" o el botón **+**).
+2. En el chat, escribí:
+
+```
+/dycos
+```
+
+3. Si la skill está instalada correctamente, Claude va a responder con el mensaje de bienvenida de Dycos, listando los comandos disponibles y pidiéndote el contexto del ticket.
+
+> **Si Claude no reconoce el comando `/dycos`**, revisá la sección [Solución de problemas](#solución-de-problemas) más abajo.
+
+---
+
+### Actualización de la skill
+
+Cuando haya una versión nueva de la skill (vas a verlo como un nuevo commit en este repositorio):
+
+1. Descargá el nuevo archivo `.skill` siguiendo el Paso 1.
+2. Ingresá a Configuración → Skills.
+3. Buscá la skill instalada y hacé clic en **"Desinstalar"** o **"Remove"**.
+4. Volvé a instalar siguiendo los Pasos 5 y 6.
+
+No hace falta desinstalar primero en todas las versiones — si Claude te permite instalar la nueva encima de la anterior, podés saltear ese paso.
+
+---
+
+### Solución de problemas
+
+**El archivo se descarga con extensión incorrecta (ej: `.skill.txt`)**
+El sistema operativo a veces cambia la extensión. Antes de instalarlo, renombrá el archivo para que quede exactamente como `dycos-softland-support.skill`.
+
+**No encuentro la sección "Skills" en Configuración**
+La sección Skills solo está disponible en los planes Pro y Team. Verificá en Configuración → Plan y facturación cuál es tu plan actual.
+
+**La skill aparece instalada pero `/dycos` no funciona**
+- Asegurate de escribir `/dycos` en un **chat nuevo**, no en uno existente.
+- Cerrá y volvé a abrir el navegador.
+- Si sigue sin funcionar, desinstalá la skill y volvé a instalarla desde cero.
+
+**Me pide permisos o muestra una advertencia al instalar**
+Esto es normal. Claude te muestra qué capacidades tiene la skill antes de activarla. Revisá que el nombre y la descripción coincidan con la skill de Dycos y confirmá la instalación.
+
+**La instalación falla o el archivo no se reconoce**
+- Verificá que el archivo pese más de 0 KB (si pesa 0 es que la descarga falló — volvé a descargar).
+- Asegurate de que la extensión sea `.skill` y no `.zip` u otra.
+- Probá con otro navegador.
+
+**No tengo el plan Pro**
+Hablá con el responsable del equipo para que revisen la cuenta. La skill no funciona sin un plan pago.
 
 ---
 
@@ -143,26 +224,38 @@ Toda consulta debe filtrar por estas columnas cuando la tabla las tiene:
 Si encontrás algo que la skill no maneja bien, o tenés una idea para mejorarla:
 
 1. Abrí un **Issue** en este repositorio (pestaña Issues → New issue)
-2. Describí el problema o la mejora
+2. Describí el problema o la mejora con el mayor detalle posible: qué preguntaste, qué respondió Claude, y qué esperabas que respondiera
 3. El responsable del repo va a actualizar la skill y subir la nueva versión
 
-Cuando haya una versión nueva, vas a ver el commit en la página principal del repositorio. Para actualizar simplemente descargás el nuevo `.skill` y lo reinstalás en Claude (mismo proceso que la instalación inicial).
+Cuando haya una versión nueva, vas a verlo como un nuevo commit en la página principal del repositorio. El proceso de actualización está detallado en la sección [Actualización de la skill](#actualización-de-la-skill) más arriba.
 
 ---
 
 ## Preguntas frecuentes
 
 **¿Tengo que reinstalar la skill cada vez que abro Claude?**
-No. Una vez instalada queda activa en tu cuenta. Solo reinstalás cuando haya una versión nueva.
+No. Una vez instalada queda activa en tu cuenta de Claude. Solo la reinstalás cuando haya una nueva versión publicada en este repositorio.
 
 **¿La skill funciona en todos mis chats?**
-Sí, en todos los chats nuevos que abras en Claude.
+La skill está disponible en todos los chats nuevos, pero se activa únicamente cuando escribís `/dycos` al inicio del mensaje. Sin ese comando, Claude funciona como asistente genérico.
 
 **¿Mis conversaciones son privadas?**
-Sí. La skill solo le da contexto a Claude sobre cómo trabajar, no comparte tu información con otros usuarios.
+Sí. La skill solo le da contexto a Claude sobre cómo trabajar para Dycos — no comparte tus conversaciones ni los datos de los tickets con otros usuarios.
 
 **¿Puedo usar Claude sin la skill?**
-Sí, pero vas a tener que explicarle el contexto de Dycos y Softland en cada chat nuevo.
+Sí, pero vas a tener que explicarle el contexto de Dycos y Softland manualmente en cada chat nuevo.
+
+**¿Qué pasa si escribo `/dycos` en el medio de un chat ya empezado?**
+La skill se va a activar en ese punto, pero es mejor empezar un chat nuevo para evitar que el contexto anterior interfiera con las respuestas.
+
+**¿La skill funciona en el celular?**
+Sí, podés usar Claude desde el celular y la skill va a funcionar. Sin embargo, la instalación inicial tiene que hacerse desde un navegador de escritorio.
+
+**¿Cuánto tarda en instalarse?**
+La instalación es inmediata. Una vez que confirmás en la pantalla de Configuración → Skills, la skill está activa en el siguiente chat que abras.
+
+**¿Qué hago si tengo un problema que no está en la guía?**
+Reportalo como un Issue en este repositorio o contactá directamente al responsable del repo.
 
 ---
 
