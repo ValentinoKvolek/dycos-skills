@@ -61,9 +61,15 @@ Si la skill está activa, Claude va a responder siguiendo el flujo de trabajo de
 
 ### Inicio de un ticket
 
-Compartile a Claude la información del ticket de la forma que más te salga natural. Por ejemplo:
+Abrí un chat nuevo en Claude y escribí `/dycos`. La skill se activa y te da un mensaje de bienvenida explicándote exactamente qué mandar.
+
+En ese momento mandás el contexto del ticket: número, título, descripción del problema, y todo lo extra que tengas — si ya corriste alguna consulta SQL, si hablaste con el cliente y te dijo algo adicional, o si vos ya tenés alguna idea de por dónde viene el problema.
+
+Por ejemplo:
 
 ```
+/dycos
+
 Ticket #456 — Cliente: Securitas
 Problema: no pueden cerrar el mes, les tira error al intentar cerrar noviembre.
 Hablé con el cliente por Teams, me dijo que el error apareció después de cargar 
@@ -73,6 +79,8 @@ SELECT * FROM FCRMVH WHERE codemp = '001' AND modfor = 'FC'
 ```
 
 Claude va a hacer preguntas si le falta contexto y después va a ayudarte a construir la solución con SQL iterativo.
+
+> **Importante:** sin el `/dycos`, Claude funciona como asistente normal y no aplica ninguna lógica de Dycos.
 
 ---
 
