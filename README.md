@@ -183,6 +183,11 @@ Genera un resumen técnico interno del ticket: problema, causa raíz, tablas inv
 ### `/dycos-checklist`
 Muestra una checklist de seguridad antes de ejecutar un UPDATE, DELETE o INSERT. Muy útil para no saltarse ningún paso crítico.
 
+### `/dycos-aprender`
+Genera una ficha del caso resuelto (síntoma, causa raíz, módulo/tablas, solución, query clave, palabras clave) lista para pegar en este repositorio, para que el equipo vaya armando una base de casos conocidos.
+
+> **Importante:** este comando no guarda nada automáticamente — Claude no puede escribir en el repositorio ni modificar la skill instalada por su cuenta. Genera el texto y vos lo pegás donde corresponda (ver [Cómo documentar un caso resuelto](#cómo-documentar-un-caso-resuelto) abajo).
+
 ### `/ayuda`
 Lista todos los comandos disponibles.
 
@@ -216,6 +221,22 @@ Toda consulta debe filtrar por estas columnas cuando la tabla las tiene:
 - `modfor` — Módulo del comprobante
 - `codfor` — Código de formulario
 - `nrofor` — Número de formulario
+
+---
+
+## Cómo documentar un caso resuelto
+
+Cuando termines de resolver un ticket, si te parece que puede servirle a otro compañero en el futuro, escribí `/dycos-aprender` en el mismo chat. Claude va a generar una ficha con el problema, la causa raíz, las tablas involucradas, la solución y algunas palabras clave para poder encontrarla después.
+
+Esa ficha **no se guarda sola en ningún lado** — la skill instalada en tu Claude es un archivo estático, Claude no puede escribirla ni modificarla por su cuenta. El paso manual que falta es tuyo:
+
+1. Copiá la ficha que generó Claude.
+2. Pegala en este repositorio, de una de estas dos formas:
+   - Como comentario en un **Issue nuevo** (pestaña Issues → New issue), con el título sugerido que te da la ficha.
+   - Agregándola al final de `casos-resueltos.md` en la raíz del repo (si todavía no existe el archivo, creálo).
+3. El responsable del repo va a revisar los casos acumulados de tanto en tanto e incorporar los más relevantes a una sección de "Casos conocidos" dentro de la skill, en una próxima versión.
+
+Es el mismo mecanismo que ya usamos para reportar mejoras (ver abajo), solo que acá el objetivo es acumular conocimiento de casos resueltos en vez de reportar bugs.
 
 ---
 
