@@ -65,10 +65,18 @@ Antes de proponer cualquier solución, verificar:
 
 Hacerlo de forma natural, no como un interrogatorio. Si el técnico ya proporcionó el dato, no reiterar la pregunta.
 
-### 3. Consultar documentación de tablas y casos resueltos
+### 3. Consultar documentación de tablas, casos y manuales
 Antes de deducir o proponer tablas y soluciones:
 - [Referencias de Tablas y Nomenclatura Softland](references/softland-tablas.md): contiene nomenclatura completa, módulos (SJ, VT, FC, ST, CO, CJ, DG, cwSGcore, CWRM), tipos de tabla y pertenencias (H, I, D, G).
 - [Base de Conocimiento de Casos Resueltos](references/casos-resueltos.md): contiene fichas técnicas completas de los 20 tickets y casos emblemáticos resueltos en Dycos (AFIP LSD, Decreto 407/2026, borrado seguro de comprobantes, ajustes de series, certificados ARCA, bloqueos en reportes, etc.).
+- [CWA — Arquitectura y Conceptos Generales](references/cwa-arquitectura-y-conceptos.md): módulos, comprobantes, circuitos, registración y conceptos estructurales del ERP.
+- [CWA — Generadores y Reportes](references/cwa-generadores.md): generador de reportes (RW), generador de movimientos, consultas integradas y plantillas.
+- [CWA — Cubos, Paneles y Consultas](references/cwa-cubos-paneles-consultas.md): cubos dinámicos, paneles de control y vistas multidimensionales.
+- [CWA — Interfaces e Integración](references/cwa-interfaces-e-integracion.md): generador de interfaces de entrada/salida y conectividad externa.
+- [CWA — Administrador de Tareas](references/cwa-administrador-de-tareas.md): tareas automáticas, ejecución batch y jobs desatendidos.
+- [CWA — Seguridad y Usuarios](references/cwa-seguridad-y-usuarios.md): administración de usuarios cwSGcore, derechos por empresa y perfiles.
+- [CWA — Instalación y Setup](references/cwa-instalacion-y-setup.md): configuración de clientes, ODBC, drivers y puestos de trabajo.
+- [CWA — Manual de Uso General](references/cwa-manual-de-uso.md): navegación, operaciones básicas y flujo de usuario.
 
 ### 4. Construir la solución con SQL iterativo
 - Partir del SELECT general que trajo el usuario.
@@ -150,29 +158,38 @@ En `CWRMFIELDS`, la columna 4 define el motor de ejecución del campo:
 
 ### Protocolo 1: Eliminación segura de facturas por base (sin CAE)
 Aplica cuando se emite una factura errónea que no fue autorizada ante AFIP/ARCA ni cobrada, y se necesita reusar el talonario:
-1. **Comprobar ausencia de CAE fiscal:** `SELECT FCRMVH_CAE, FCRMVH_FCHCAE FROM FCRMVH WHERE ...` (`FCRMVH_CAE IS NULL`).
-2. **Comprobar ausencia de asiento contable:** `FCRMVH_NROASI IS NULL OR FCRMVH_NROASI <= 0`.
+1. **Comprobar ausencia de CAE fiscal:**
+   `SELECT FCRMVH_CAE, FCRMVH_FCHCAE FROM FCRMVH WHERE FCRMVH_CODEMP = @emp AND FCRMVH_MODFOR = 'FC' AND FCRMVH_CODFOR = @cod AND FCRMVH_NROFOR = @nro;`
+   (Debe ser `FCRMVH_CAE IS NULL` o texto vacío).
+2. **Comprobar ausencia de asiento contable:**
+   `FCRMVH_NROASI IS NULL OR FCRMVH_NROASI <= 0`.
 3. **Comprobar que no posea cobranzas ni aplicaciones en `VTROAP`:**
-   `SELECT COUNT(*) FROM VTROAP WHERE VTROAP_MODFOR = @mod AND VTROAP_CODFOR = @cod AND VTROAP_NROFOR = @nro;` (debe ser 0).
+   Verificar tanto si es comprobante origen como comprobante destino aplicado:
+   `SELECT COUNT(*) FROM VTROAP WHERE VTROAP_CODEMP = @emp AND ((VTROAP_MODFOR = 'VT' AND VTROAP_CODFOR = @cod AND VTROAP_NROFOR = @nro) OR (VTROAP_APLMOD = 'VT' AND VTROAP_APLCOD = @cod AND VTROAP_APLNRO = @nro));` (debe ser 0).
 4. **Comprobar talonario en `GRCFOR`:** Validar que `GRCFOR_ULTNRO` coincida exactamente con el número a eliminar (solo se retrocede si es el último comprobante emitido).
 5. **Borrado jerárquico bajo transacción:**
    ```sql
+   USE <NombreBaseDatos>;
+
    BEGIN TRAN X1;
-   -- 1. Ventas: subcuentas, dimensiones, ítems, cuotas, percepciones y cabecera
-   DELETE FROM VTRMVG WHERE VTRMVG_CODEMP = @emp AND VTRMVG_MODFOR = @mod AND VTRMVG_CODFOR = @cod AND VTRMVG_NROFOR = @nro;
-   DELETE FROM VTRMVD WHERE VTRMVD_CODEMP = @emp AND VTRMVD_MODFOR = @mod AND VTRMVD_CODFOR = @cod AND VTRMVD_NROFOR = @nro;
-   DELETE FROM VTRMVI WHERE VTRMVI_CODEMP = @emp AND VTRMVI_MODFOR = @mod AND VTRMVI_CODFOR = @cod AND VTRMVI_NROFOR = @nro;
-   DELETE FROM VTRMVC WHERE VTRMVC_CODEMP = @emp AND VTRMVC_MODFOR = @mod AND VTRMVC_CODFOR = @cod AND VTRMVC_NROFOR = @nro;
-   DELETE FROM VTRMVP WHERE VTRMVP_CODEMP = @emp AND VTRMVP_MODFOR = @mod AND VTRMVP_CODFOR = @cod AND VTRMVP_NROFOR = @nro;
-   DELETE FROM VTRMVH WHERE VTRMVH_CODEMP = @emp AND VTRMVH_MODFOR = @mod AND VTRMVH_CODFOR = @cod AND VTRMVH_NROFOR = @nro;
 
-   -- 2. Facturación: subcuentas, dimensiones, ítems y cabecera
-   DELETE FROM FCRMVG WHERE FCRMVG_CODEMP = @emp AND FCRMVG_MODFOR = @mod AND FCRMVG_CODFOR = @cod AND FCRMVG_NROFOR = @nro;
-   DELETE FROM FCRMVD WHERE FCRMVD_CODEMP = @emp AND FCRMVD_MODFOR = @mod AND FCRMVD_CODFOR = @cod AND FCRMVD_NROFOR = @nro;
-   DELETE FROM FCRMVI WHERE FCRMVI_CODEMP = @emp AND FCRMVI_MODFOR = @mod AND FCRMVI_CODFOR = @cod AND FCRMVI_NROFOR = @nro;
-   DELETE FROM FCRMVH WHERE FCRMVH_CODEMP = @emp AND FCRMVH_MODFOR = @mod AND FCRMVH_CODFOR = @cod AND FCRMVH_NROFOR = @nro;
+   DECLARE @emp varchar(6) = '...', @cod varchar(6) = '...', @nro int = ...;
 
-   -- 3. Decrementar talonario si era el último
+   -- 1. Ventas (MODFOR = 'VT'): subcuentas, dimensiones, ítems, cuotas, percepciones y cabecera
+   DELETE FROM VTRMVG WHERE VTRMVG_CODEMP = @emp AND VTRMVG_MODFOR = 'VT' AND VTRMVG_CODFOR = @cod AND VTRMVG_NROFOR = @nro;
+   DELETE FROM VTRMVD WHERE VTRMVD_CODEMP = @emp AND VTRMVD_MODFOR = 'VT' AND VTRMVD_CODFOR = @cod AND VTRMVD_NROFOR = @nro;
+   DELETE FROM VTRMVI WHERE VTRMVI_CODEMP = @emp AND VTRMVI_MODFOR = 'VT' AND VTRMVI_CODFOR = @cod AND VTRMVI_NROFOR = @nro;
+   DELETE FROM VTRMVC WHERE VTRMVC_CODEMP = @emp AND VTRMVC_MODFOR = 'VT' AND VTRMVC_CODFOR = @cod AND VTRMVC_NROFOR = @nro;
+   DELETE FROM VTRMVP WHERE VTRMVP_CODEMP = @emp AND VTRMVP_MODFOR = 'VT' AND VTRMVP_CODFOR = @cod AND VTRMVP_NROFOR = @nro;
+   DELETE FROM VTRMVH WHERE VTRMVH_CODEMP = @emp AND VTRMVH_MODFOR = 'VT' AND VTRMVH_CODFOR = @cod AND VTRMVH_NROFOR = @nro;
+
+   -- 2. Facturación (MODFOR = 'FC'): subcuentas, dimensiones, ítems y cabecera
+   DELETE FROM FCRMVG WHERE FCRMVG_CODEMP = @emp AND FCRMVG_MODFOR = 'FC' AND FCRMVG_CODFOR = @cod AND FCRMVG_NROFOR = @nro;
+   DELETE FROM FCRMVD WHERE FCRMVD_CODEMP = @emp AND FCRMVD_MODFOR = 'FC' AND FCRMVD_CODFOR = @cod AND FCRMVD_NROFOR = @nro;
+   DELETE FROM FCRMVI WHERE FCRMVI_CODEMP = @emp AND FCRMVI_MODFOR = 'FC' AND FCRMVI_CODFOR = @cod AND FCRMVI_NROFOR = @nro;
+   DELETE FROM FCRMVH WHERE FCRMVH_CODEMP = @emp AND FCRMVH_MODFOR = 'FC' AND FCRMVH_CODFOR = @cod AND FCRMVH_NROFOR = @nro;
+
+   -- 3. Decrementar talonario si era el último comprobante emitido
    UPDATE GRCFOR SET GRCFOR_ULTNRO = GRCFOR_ULTNRO - 1 
    WHERE GRCFOR_CODFOR = @cod AND GRCFOR_ULTNRO = @nro;
 

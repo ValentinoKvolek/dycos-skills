@@ -140,7 +140,7 @@ Módulo transaccional de facturación electrónica (CAE), notas de venta, remito
 | `FCRMVI` | Ítems | Renglones de facturación. | `CODEMP`, `MODFOR`, `CODFOR`, `NROFOR`, `NROITM` (PK), `ARTCOD`, `CANTID`, `PRECIO`, `NETO`. |
 | `FCRMVD` | Dim. | Dimensiones contables de facturación. | `CODEMP`, `MODFOR`, `CODFOR`, `NROFOR`, `NROITM`. |
 | `FCRMVG` | Subctas | Subcuentas de facturación. | `CODEMP`, `MODFOR`, `CODFOR`, `NROFOR`, `NROITM`. |
-| `VTRMVH` | Header | Registración de Comprobantes de Venta (cabecera cuenta corriente). | `CODEMP`, `MODFOR`, `CODFOR`, `NROFOR` (PK), `NROCTA` (cliente), `FCHMOV`, `SUCURS` (punto de venta), `IMPTOT`. **Nota: `VTRMVH_TOTAPL` no existe.** |
+| `VTRMVH` | Header | Registración de Comprobantes de Venta (cabecera cuenta corriente). | `CODEMP`, `MODFOR`, `CODFOR`, `NROFOR` (PK), `NROCTA` (cliente), `FCHMOV`, `SUCURS` (punto de venta), `IMPORT`. **Nota: `VTRMVH_TOTAPL` y `VTRMVH_IMPTOT` no existen (el campo real es `VTRMVH_IMPORT`).** |
 | `VTRMVI` | Ítems | Ítems de comprobante de venta. | `CODEMP`, `MODFOR`, `CODFOR`, `NROFOR`, `NROITM`. |
 | `VTRMVD` | Dim. | Dimensiones de comprobante de venta. | `CODEMP`, `MODFOR`, `CODFOR`, `NROFOR`, `NROITM`. |
 | `VTRMVG` | Subctas | Subcuentas de comprobante de venta. | `CODEMP`, `MODFOR`, `CODFOR`, `NROFOR`, `NROITM`. |
@@ -149,7 +149,7 @@ Módulo transaccional de facturación electrónica (CAE), notas de venta, remito
 | `GRCFOR` | Maestro | Formularios y talonarios del sistema. | `CODFOR` (PK), `DESCRP`, `ULTNRO` (último número emitido), `IMPRES` (4=continuo/preimpreso 17 renglones, láser/electrónico=multipágina), `CANREN`, `NOMREP`. |
 | `VTCFOR` | Maestro | Autorizaciones y talonarios de venta. | `CODFOR` (PK), `CODCOM`, `SUCURS`, `CODIMP` (código comprobante AFIP/ARCA, ej. 001, 201 MiPyME). |
 | `GRCCBF` | Matriz | Asignación de formulario por comprobante y condición IVA. | `MODCOM`, `CODCOM`, `EMPIVA`, `CODFOR`, `CODIMP`. Clave para destrabar errores de facturación MiPyME. |
-| `VTROAP` | Registr. | Aplicaciones e imputaciones de comprobantes de clientes. | `MODFOR`, `CODFOR`, `NROFOR` (origen), `APLMOD`, `APLCOD`, `APLNRO` (destino aplicado), `IMPORTE`. Tabla real para verificar aplicaciones antes de borrar comprobantes. |
+| `VTROAP` | Registr. | Aplicaciones e imputaciones de comprobantes de clientes. | `CODEMP`, `MODFOR`, `CODFOR`, `NROFOR` (origen), `APLMOD`, `APLCOD`, `APLNRO` (destino aplicado), `IMPORTE`. Tabla real para verificar aplicaciones antes de borrar comprobantes (verificar tanto origen como destino aplicado). |
 | `FCTCIH` / `FCTCII` | Circuitos | Circuitos de facturación electrónica. | `CIRCOM` (código circuito), `CIRAPL` (circuito aplicado). |
 
 ---

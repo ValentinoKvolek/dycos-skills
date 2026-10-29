@@ -59,6 +59,8 @@ Al analizar la definición en `CWRMFIELDS`, se descubrió que dos columnas agreg
 1. Modificación del Stored Procedure subyacente `sp_USR_REPMAUDI1` para incorporar directamente los campos requeridos de `FCRMVH` mediante un `LEFT JOIN` indexado en el servidor.
 2. Cambio en `CWRMFIELDS` de Tipo `0` (VBScript cliente) a Tipo `1` (SQL nativo):
 ```sql
+USE DYS_UY;
+
 BEGIN TRAN X1;
 
 UPDATE CWRMFIELDS 
@@ -289,11 +291,13 @@ Comprobante erróneo sin validez fiscal pendiente de reutilización de talonario
 ### Solución aplicada
 Ejecución del protocolo estricto de eliminación jerárquica:
 1. Validaciones previas:
-   - `SELECT FCRMVH_CAE, FCRMVH_NROASI FROM FCRMVH WHERE ...` (confirmó `CAE IS NULL` y `NROASI = 0`).
-   - `SELECT COUNT(*) FROM VTROAP WHERE VTROAP_NROFOR = 21870;` (confirmó 0 aplicaciones).
+   - `SELECT FCRMVH_CAE, FCRMVH_NROASI FROM FCRMVH WHERE FCRMVH_CODEMP = '01' AND FCRMVH_CODFOR = 'FA0002' AND FCRMVH_NROFOR = 21870;` (confirmó `CAE IS NULL` y `NROASI = 0`).
+   - `SELECT COUNT(*) FROM VTROAP WHERE VTROAP_CODEMP = '01' AND ((VTROAP_MODFOR = 'VT' AND VTROAP_CODFOR = 'FA0002' AND VTROAP_NROFOR = 21870) OR (VTROAP_APLMOD = 'VT' AND VTROAP_APLCOD = 'FA0002' AND VTROAP_APLNRO = 21870));` (confirmó 0 aplicaciones).
    - `SELECT GRCFOR_ULTNRO FROM GRCFOR WHERE GRCFOR_CODFOR = 'FA0002';` (confirmó que 21870 era el último emitido).
 2. Borrado jerárquico bajo transacción:
 ```sql
+USE DIASOL;
+
 BEGIN TRAN X1;
 
 DECLARE @emp varchar(6) = '01', @mod varchar(2) = 'VT', @cod varchar(6) = 'FA0002', @nro int = 21870;
@@ -383,7 +387,9 @@ El usuario digitó manualmente el número de serie `NO APLICA1` seleccionando el
 ### Solución aplicada
 1. Verificación por SQL de la ubicación real de la serie:
 ```sql
-SELECT STRMVZ_ARTCOD, STRMVZ_DEPMOV, STRMVZ_SECMOV, STRMVZ_SERMOV, STRMVZ_CANTID 
+USE VIDEOJET;
+
+SELECT STRMVZ_CODEMP, STRMVZ_ARTCOD, STRMVZ_DEPMOV, STRMVZ_SECMOV, STRMVZ_SERMOV, STRMVZ_CANTID 
 FROM STRMVZ 
 WHERE STRMVZ_SERMOV = 'NO APLICA1';
 ```
@@ -464,9 +470,19 @@ En el Stored Procedure `DBO.Carga_Datos_Acreditan_Tucuman`, la fecha fin del pad
 ### Solución aplicada
 Corrección del SP utilizando la función nativa `EOMONTH`:
 ```sql
+USE DIASOL;
+
+BEGIN TRAN X1;
+
+-- Validar registros previos con vencimiento desfasado
+SELECT COUNT(*) FROM DGHTXT 
+WHERE CODRET = 'PIBTC' AND FCHHAS < EOMONTH(FCHDES);
+
 UPDATE DGHTXT 
 SET FCHHAS = EOMONTH(FCHDES) 
 WHERE CODRET = 'PIBTC' AND FCHHAS < EOMONTH(FCHDES);
+
+COMMIT TRAN X1;
 ```
 Reprocesamiento del job con vigencia hasta el último segundo del mes.
 
@@ -491,6 +507,8 @@ Inconsistencia en la matriz impositiva `GRCCBF` (asignación de talonarios por c
 ### Solución aplicada
 Inserción controlada en `GRCCBF` bajo transacción:
 ```sql
+USE DIASOL;
+
 BEGIN TRAN X1;
 
 INSERT INTO GRCCBF (GRCCBF_MODCOM, GRCCBF_CODCOM, GRCCBF_EMPIVA, GRCCBF_CODFOR, GRCCBF_CODIMP)
@@ -518,13 +536,17 @@ La integración de compras entre la app móvil y Softland fallaba con `Msg 547: 
 El script de sincronización intentaba eliminar ítems de `CORMVI` sin eliminar previamente sus dimensiones asociadas en `CORMVD` y subcuentas en `CORMVG`.
 
 ### Solución aplicada
-Reordenamiento estricto de borrado en cascada y bloqueo de talonario con hints transaccionales:
+Reordenamiento estricto de borrado en cascada con filtros obligatorios de empresa y módulo:
 ```sql
+USE GRPBUE;
+
 BEGIN TRAN X1;
 
-DELETE FROM CORMVG WHERE CORMVG_CODFOR = @cod AND CORMVG_NROFOR = @nro;
-DELETE FROM CORMVD WHERE CORMVD_CODFOR = @cod AND CORMVD_NROFOR = @nro;
-DELETE FROM CORMVI WHERE CORMVI_CODFOR = @cod AND CORMVI_NROFOR = @nro;
+DECLARE @emp varchar(6) = 'GRB003', @mod varchar(2) = 'CO', @cod varchar(6) = @cod, @nro int = @nro;
+
+DELETE FROM CORMVG WHERE CORMVG_CODEMP = @emp AND CORMVG_MODFOR = @mod AND CORMVG_CODFOR = @cod AND CORMVG_NROFOR = @nro;
+DELETE FROM CORMVD WHERE CORMVD_CODEMP = @emp AND CORMVD_MODFOR = @mod AND CORMVD_CODFOR = @cod AND CORMVD_NROFOR = @nro;
+DELETE FROM CORMVI WHERE CORMVI_CODEMP = @emp AND CORMVI_MODFOR = @mod AND CORMVI_CODFOR = @cod AND CORMVI_NROFOR = @nro;
 
 COMMIT TRAN X1;
 ```
