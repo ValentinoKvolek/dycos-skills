@@ -169,6 +169,9 @@ Claude va a hacer preguntas si le falta contexto y después va a ayudarte a cons
 
 En cualquier momento del chat podés escribir estos comandos para activar funcionalidades específicas:
 
+### `/dycos-horas`
+Genera una justificación técnica profesional, estructurada y defendible de las horas dedicadas al ticket en 4 fases técnicas (Diagnóstico, Auditoría en BD, Ejecución transaccional y Verificación funcional), lista para asentar en el sistema de tickets (Mantis, Jira, Redmine) o presentar ante gerencia y clientes. Podés especificar la duración deseada (ej. `/dycos-horas 1.5h`, `/dycos-horas 2h`, `/dycos-horas 4h`).
+
 ### `/dycos-ia`
 Analiza todo lo que trabajaron en el chat y detecta oportunidades donde la IA podría agregar valor real: automatizaciones, validaciones preventivas, templates reutilizables.
 
